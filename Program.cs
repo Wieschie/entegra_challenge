@@ -9,6 +9,7 @@ namespace main
         {
 
             BusinessCardParser b = new BusinessCardParser();
+            Console.WriteLine(); // add space after warnings
             string[] testStrings = {
 @"Entegra Systems
 John Doe
