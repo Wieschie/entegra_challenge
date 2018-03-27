@@ -32,7 +32,12 @@ Suite 229
 Arlington, VA 22209
 Fax: +1 (703) 555-1200
 Tel: +1 (703) 555-1259
-bsmith@abctech.com"
+bsmith@abctech.com",
+@"Evan Schiewe
+Elmhurst College
+t: 6307910628
+c: 6302580628
+evan.schiewe@gmail.com"
             };
             foreach (string t in testStrings)
             {
