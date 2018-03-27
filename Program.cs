@@ -1,5 +1,8 @@
 ﻿using System;
 using BusinessCard;
+using System.Collections.Generic;
+using System.Linq;
+using System.Diagnostics;
 
 namespace main
 {
@@ -7,8 +10,11 @@ namespace main
     {
         static void Main()
         {
-
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             BusinessCardParser b = new BusinessCardParser();
+            stopwatch.Stop();
+            Console.WriteLine(stopwatch.ElapsedMilliseconds + "ms to initialize BusinessCardParser.");
             string[] testStrings = {
 @"Entegra Systems
 John Doe
@@ -32,16 +38,30 @@ Suite 229
 Arlington, VA 22209
 Fax: +1 (703) 555-1200
 Tel: +1 (703) 555-1259
-bsmith@abctech.com"
+bsmith@abctech.com",
+@"Evan Schiewe
+Elmhurst College
+t: 6307910628
+c: 6302580628
+evan.schiewe@gmail.com"
             };
-            foreach (string t in testStrings)
+
+            List<long> runtimes = new List<long>();
+            for (int i = 0; i < 100; i++)
             {
-                Console.WriteLine("Input: \n\n" + t);
-                Console.WriteLine("\n==>\n");
-                ContactInfo c = b.GetContactInfo(t);
-                c.print();
-                Console.WriteLine("\n==>\n");
+                foreach (string t in testStrings)
+                {
+                    //Console.WriteLine("Input: \n\n" + t);
+                    //Console.WriteLine("\n==>\n");
+                    stopwatch.Restart();
+                    ContactInfo c = b.GetContactInfo(t);
+                    stopwatch.Stop();
+                    runtimes.Add(stopwatch.ElapsedMilliseconds);
+                    //c.print();
+                    //Console.WriteLine("\n==>\n");
+                }
             }
+            Console.WriteLine("Average time to get contact info was " + runtimes.Average() + "ms.");
         }
     }
 }
