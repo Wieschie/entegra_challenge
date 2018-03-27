@@ -61,8 +61,8 @@ namespace entegra
                     Array sentenceArr = sentence.toArray();
                     for (int i = 0; i < sentenceArr.Length; i++)
                     {
-                        CoreLabel word = (CoreLabel) sentenceArr.GetValue(i);
-                        if ((string) word.get(new CoreAnnotations.AnswerAnnotation().getClass()) == desiredLabel)
+                        CoreLabel word = (CoreLabel)sentenceArr.GetValue(i);
+                        if ((string)word.get(new CoreAnnotations.AnswerAnnotation().getClass()) == desiredLabel)
                         {
                             int index = nameClassifier.classIndex.indexOf(desiredLabel);
                             probabilities.Add(cliqueTree.prob(i, index));
@@ -97,27 +97,53 @@ namespace entegra
 
 
         // regexes stored as members so they are compiled once and kept in memory for repeated use.
-        // matches all valid US numbers with capture groups for each segment (4 total)
-        //                                    optionally match US country code
-        //                                    |         parentheses are optional
-        //                                    |          |   Area codes cannot start with 0
-        //                                    |          |   |               all delimiters are optional
-        //                                    |          |   |               |             
-        private static string phoneFormat = @"(1?)[-. ]?\(?([1-9][\d]{2})\)?[-. ]?([\d]{3})[-. ]?([\d]{4})";
+        // matches all valid US numbers with capture groups for easy digit extraction
+        //                                    Match all preceding characters for text telephone/fax labels
+        //                                    | optionally match US country code
+        //                                    | |         parentheses are optional
+        //                                    | |          |   Area codes cannot start with 0
+        //                                    | |          |   |               all delimiters are optional
+        //                                    | |          |   |               |             
+        private static string phoneFormat = @".*(1?)[-. ]?\(?([1-9][\d]{2})\)?[-. ]?([\d]{3})[-. ]?([\d]{4})";
         private static Regex phoneRegex = new Regex(phoneFormat, RegexOptions.Compiled);
 
         private string extractPhone(ref string document)
         {
+            Match numberMatch = Match.Empty;
             MatchCollection matches = phoneRegex.Matches(document);
             if (matches.Count == 0)
             {
                 throw new ArgumentException("Valid phone number not found.");
             }
-            string cleaned_phone_number = phoneRegex.Replace(matches[0].Value, "$1$2$3$4");
+            if (matches.Count > 1)
+            {
+                // match any variation of telephone, phone, cellphone while avoiding fax
+                Regex telephoneRegex = new Regex(@"t|p|c", RegexOptions.IgnoreCase);
+                foreach (Match m in matches)
+                {
+                    if (telephoneRegex.IsMatch(m.Value))
+                    {
+                        numberMatch = m;
+                        break;
+                    }
+                }
+                // no labels found, take the first number.
+                if (numberMatch == Match.Empty)
+                    numberMatch = matches[0];
+            }
+            else
+            {
+                numberMatch = matches[0];
+            }
+            string cleaned_phone_number = phoneRegex.Replace(numberMatch.Value, "$1$2$3$4");
             return cleaned_phone_number;
         }
 
 
+        //                                     Local part of address
+        //                                     |         @domain (including subdomains
+        //                                     |         |           TLD
+        //                                     |         |           |
         private static string emailFormat = @"[\w\d%+-.]+@[A-Z\d.-]+\.[A-Z]{2,}";
         private static Regex emailRegex = new Regex(emailFormat, RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
@@ -136,6 +162,5 @@ namespace entegra
 
             return matches[0].Value.ToLower();
         }
-
     }
 }
