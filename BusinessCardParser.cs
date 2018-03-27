@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using edu.stanford.nlp.ie.crf;
 using edu.stanford.nlp.ling;
-using java.util;
+using jList = java.util.List;
 
 namespace entegra
 {
@@ -31,52 +32,67 @@ namespace entegra
             return new ContactInfo(name, phone, email);
         }
 
+
         // note: SLF4J warning is a known issue and does not adversely affect anything
         // https://github.com/sergey-tihon/Stanford.NLP.NET/issues/79
-        CRFClassifier nameClassifier = CRFClassifier.getClassifierNoExceptions(
-            @"english.all.3class.distsim.crf.ser.gz");
+        private static string modelFilename = @"english.all.3class.distsim.crf.ser.gz";
+        CRFClassifier nameClassifier = CRFClassifier.getClassifierNoExceptions(modelFilename);
+
         private string extractName(ref string document)
         {
-            StringBuilder name = new StringBuilder();
+            const string desiredLabel = "PERSON";
+
+            // store potential strings and their associated PERSON probabilities 
+            List<Tuple<StringBuilder, List<double>>> potentialNames = new List<Tuple<StringBuilder, List<double>>>();
 
             // Split document into individual lines.  Linguistic context isn't important on a business card
             // and may actually confuse the classifier.
             string[] lines = document.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
             foreach (string line in lines)
             {
-                List labels = nameClassifier.classify(line);
+                jList labels = nameClassifier.classify(line);
 
-                foreach (List sentence in labels.toArray())
+                foreach (jList sentence in labels.toArray())
                 {
+                    // CliqueTree is used to extract probabilities
                     CRFCliqueTree cliqueTree = nameClassifier.getCliqueTree(sentence);
+                    StringBuilder name = new StringBuilder();
+                    List<double> probabilities = new List<double>();
                     Array sentenceArr = sentence.toArray();
-                    //foreach (CoreLabel word in sentence.toArray())
                     for (int i = 0; i < sentenceArr.Length; i++)
                     {
                         CoreLabel word = (CoreLabel) sentenceArr.GetValue(i);
-                        Console.Write("{0}/{1} ", word.word(), word.get(new CoreAnnotations.AnswerAnnotation().getClass()));
-                        if ((string)word.get(new CoreAnnotations.AnswerAnnotation().getClass()) == "PERSON")
+                        if ((string) word.get(new CoreAnnotations.AnswerAnnotation().getClass()) == desiredLabel)
                         {
+                            int index = nameClassifier.classIndex.indexOf(desiredLabel);
+                            probabilities.Add(cliqueTree.prob(i, index));
+
                             if (name.Length > 0)
                                 name.Append(" ");
                             name.Append(word.word());
                         }
-                        Console.WriteLine('\n');
-
-                        for (Iterator iter = nameClassifier.classIndex.iterator(); iter.hasNext();)
-                        {
-                            String l = (string)iter.next();
-                        //string l = "PERSON";
-                            int index = nameClassifier.classIndex.indexOf(l);
-                            double probability = cliqueTree.prob(i, index);
-                            Console.WriteLine("\t" + l + "(" + probability + ")");
-                        }
                     }
-
-                    Console.WriteLine('\n');
+                    if (name.Length > 0)
+                    {
+                        potentialNames.Add(new Tuple<StringBuilder, List<double>>(name, probabilities));
+                    }
                 }
             }
-            return name.ToString();
+
+            // choose the line classified as PERSON with the highest confidence
+            string finalName = "";
+            double max = 0;
+            foreach (Tuple<StringBuilder, List<double>> t in potentialNames)
+            {
+                double a = t.Item2.Average();
+                if (a > max)
+                {
+                    max = a;
+                    finalName = t.Item1.ToString();
+                }
+            }
+
+            return finalName;
         }
 
 
