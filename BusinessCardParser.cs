@@ -95,19 +95,19 @@ namespace entegra
             return finalName;
         }
 
-
-        // regexes stored as members so they are compiled once and kept in memory for repeated use.
-        // matches all valid US numbers with capture groups for easy digit extraction
-        //                                    Match all preceding characters for text telephone/fax labels
-        //                                    | optionally match US country code
-        //                                    | |         parentheses are optional
-        //                                    | |          |   Area codes cannot start with 0
-        //                                    | |          |   |               all delimiters are optional
-        //                                    | |          |   |               |             
-        private static string phoneFormat = @".*(1?)[-. ]?\(?([1-9][\d]{2})\)?[-. ]?([\d]{3})[-. ]?([\d]{4})";
+      
+        // Match any preceding characters for text telephone/fax labels, and optionally US country code
+        private static string phonePrefix = @".*?(1)?";
+        // all delimiters are optional
+        private static string phoneDelimiter = @"[-. ]?";
+        // Area codes cannot start with 0
+        private static string areaCode = @"\(?([1-9][\d]{2})\)?";
+        private static string localNumber = @"([\d]{3})" + phoneDelimiter + @"([\d]{4})";
+        // matches all valid US numbers with capture groups for easy digit extraction  
+        private static string phoneFormat = phonePrefix + phoneDelimiter + areaCode + phoneDelimiter + localNumber;
         private static Regex phoneRegex = new Regex(phoneFormat, RegexOptions.Compiled);
 
-        private string extractPhone(ref string document)
+        private static string extractPhone(ref string document)
         {
             Match numberMatch = Match.Empty;
             MatchCollection matches = phoneRegex.Matches(document);
@@ -140,14 +140,14 @@ namespace entegra
         }
 
 
-        //                                     Local part of address
-        //                                     |         @domain (including subdomains
-        //                                     |         |           TLD
-        //                                     |         |           |
-        private static string emailFormat = @"[\w\d%+-.]+@[A-Z\d.-]+\.[A-Z]{2,}";
+        private static string emailLocal = @"[\w\d%+-.]+";
+        // @ domain, including any subdomains
+        private static string emailDomain = @"@[A-Z\d.-]+";
+        private static string emailTLD = @"\.[A-Z]{2,}";
+        private static string emailFormat = emailLocal + emailDomain + emailTLD;
         private static Regex emailRegex = new Regex(emailFormat, RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        private string extractEmail(ref string document)
+        private static string extractEmail(ref string document)
         {
             MatchCollection matches = emailRegex.Matches(document);
             if (matches.Count == 0)
