@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "entegra", "entegra.csproj", "{5193CEEE-6C49-4ADC-B8F0-0D6306C72A3B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "evan_schiewe_entegra_challenge", "evan_schiewe_entegra_challenge.csproj", "{5193CEEE-6C49-4ADC-B8F0-0D6306C72A3B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
