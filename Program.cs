@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+using BusinessCard;
 
-namespace entegra
+namespace main
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
 
             BusinessCardParser b = new BusinessCardParser();
-            string[] test = {
+            string[] testStrings = {
 @"Entegra Systems
 John Doe
 Senior Software Engineer
@@ -36,7 +34,7 @@ Fax: +1 (703) 555-1200
 Tel: +1 (703) 555-1259
 bsmith@abctech.com"
             };
-            foreach (string t in test)
+            foreach (string t in testStrings)
             {
                 Console.WriteLine("Input: \n\n" + t);
                 Console.WriteLine("\n==>\n");

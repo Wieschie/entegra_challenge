@@ -1,6 +1,6 @@
 ﻿using Console = System.Console;
 
-namespace entegra
+namespace BusinessCard
 {
     /// <summary>
     /// Stores contact info from business cards.

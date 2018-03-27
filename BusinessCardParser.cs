@@ -7,7 +7,7 @@ using edu.stanford.nlp.ie.crf;
 using edu.stanford.nlp.ling;
 using jList = java.util.List;
 
-namespace entegra
+namespace BusinessCard
 {
     /// <summary>
     /// Parses the results of an OCR conversion in order to extract the name,
