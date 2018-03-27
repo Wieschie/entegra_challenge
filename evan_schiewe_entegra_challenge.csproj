@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{5193CEEE-6C49-4ADC-B8F0-0D6306C72A3B}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>entegra</RootNamespace>
-    <AssemblyName>entegra</AssemblyName>
+    <RootNamespace>main</RootNamespace>
+    <AssemblyName>evan_schiewe_entegra_challenge</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -198,4 +198,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>cp $(ProjectDir)\english.all.3class.distsim.crf.ser.gz $(TargetDir)</PreBuildEvent>
+  </PropertyGroup>
 </Project>
