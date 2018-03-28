@@ -9,4 +9,4 @@ The parser can be used in other applications by `using BusinessCard` and adding 
 
 ## Notes
 * Because Stanford CoreNLP's Named Entity Recognition is used to extract names, instantiating a BusinessCardParser takes approximately 5 seconds while the model is loaded.  After this, actual parsing performance is quite fast.
-* `SLF4J: Failed to load...`: This is a [known issue with the Stanford.NLP.NET package](https://github.com/sergey-tihon/Stanford.NLP.NET/issues/79, but thankfully doesn't get in the way. Removing the auto-generated `slf4j-simple.dll` and `slf4j-api.dll` silence this error.
+* `SLF4J: Failed to load...`: This is a [known issue with the Stanford.NLP.NET package](https://github.com/sergey-tihon/Stanford.NLP.NET/issues/79), but thankfully doesn't get in the way. Removing the auto-generated `slf4j-simple.dll` and `slf4j-api.dll` silence this error.
